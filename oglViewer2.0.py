@@ -46,7 +46,7 @@ class Scene:
     OpenGL scene class: .obj mit Wireframe / Gouraud / Phong.
     """
 
-    def __init__(self, width, height, scenetitle="Hello Triangle"):
+    def __init__(self, width, height, scenetitle="Cooles Modell"):
         self.scenetitle = scenetitle
         self.width = width
         self.height = height
