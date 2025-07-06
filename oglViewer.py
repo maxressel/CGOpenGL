@@ -68,12 +68,6 @@ class Scene:
         self.last_pan_y = None
         self.keyboard_rotation_angle = 5.0  # Grad pro Tastendruck
 
-
-
-
-
-
-
     def init_GL(self):
         # setup buffer (vertices, normals)
         self.gen_buffers()
@@ -126,7 +120,7 @@ class Scene:
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, None)
         glEnableVertexAttribArray(0)
 
-        # Normals -> Attrib 1 (immer!)
+        # Normals -> Attrib 1 
         norm_buffer = glGenBuffers(1)
         glBindBuffer(GL_ARRAY_BUFFER, norm_buffer)
         glBufferData(GL_ARRAY_BUFFER, normals.nbytes, normals, GL_STATIC_DRAW)
@@ -160,19 +154,16 @@ class Scene:
             projection = perspective(45.0, aspect, 1.0, 10.0)
         else:
             # Orthografisch
-            ortho_scale = 1.5  # kannst du nach Geschmack anpassen
+            ortho_scale = 1.5  
             if aspect >= 1.0:
                 projection = ortho(-ortho_scale*aspect, ortho_scale*aspect, -ortho_scale, ortho_scale, 1.0, 10.0)
             else:
                 projection = ortho(-ortho_scale, ortho_scale, -ortho_scale/aspect, ortho_scale/aspect, 1.0, 10.0)
 
-
         view = look_at(0, 0, 3, 0, 0, 0, 0, 1, 0)
         if self.animate:
-            # Animation aktiv → dreht weiter um Y-Achse
             model = rotate_y(self.angle) @ self.rotation_matrix
         else:
-            # nur Arcball-Rotation
             model = self.rotation_matrix
 
         model = translate(self.pan_offset[0], self.pan_offset[1], 0.0) @ model
@@ -183,7 +174,7 @@ class Scene:
         mv_matrix = view @ model
         normal_matrix = np.linalg.inv(mv_matrix[:3, :3]).T
 
-        # Shader wählen
+        # Shader
         if self.shading_mode == 0:
             shader = self.shader_wireframe
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
@@ -204,7 +195,7 @@ class Scene:
         glUniformMatrix3fv(loc_nm, 1, GL_TRUE, normal_matrix)
 
         loc_shiny = glGetUniformLocation(shader, "shininess")
-        glUniform1f(loc_shiny, 64.0)  # oder 64.0 für noch engeren Glanzpunkt
+        glUniform1f(loc_shiny, 64.0)  
 
 
         # Zeichnen
@@ -215,8 +206,6 @@ class Scene:
         glBindVertexArray(0)
         glUseProgram(0)
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
-
-
 
 class RenderWindow:
     """
@@ -254,7 +243,6 @@ class RenderWindow:
         glfw.set_window_size_callback(self.window, self.on_size)
         glfw.set_cursor_pos_callback(self.window, self.on_mouse_move)
 
-
         # create scene
         self.scene = scene  
         if not self.scene:
@@ -268,7 +256,7 @@ class RenderWindow:
 
     def on_mouse_move(self, win, xpos, ypos):
         if self.scene.mouse_pressed:
-            # Arcball …
+            # Arcball
             p2 = np.array(
                 projectOnSphere(xpos, ypos, self.scene.arcball_radius, self.scene.width, self.scene.height)
             )
@@ -285,7 +273,7 @@ class RenderWindow:
         if self.scene.zoom_pressed:
             _, y = glfw.get_cursor_pos(win)
             dy = y - self.scene.last_y
-            self.scene.zoom_factor *= 1.0 + dy * 0.002  # <<< HIER: kleiner Faktor für weicher
+            self.scene.zoom_factor *= 1.0 + dy * 0.002  
             self.scene.zoom_factor = max(0.1, min(self.scene.zoom_factor, 10.0))
             self.scene.last_y = y
 
@@ -294,15 +282,11 @@ class RenderWindow:
             dx = x - self.scene.last_pan_x
             dy = y - self.scene.last_pan_y
 
-            # Skaliere für feinfühliges Panning
             self.scene.pan_offset[0] += dx * 0.002
             self.scene.pan_offset[1] -= dy * 0.002
 
             self.scene.last_pan_x = x
             self.scene.last_pan_y = y
-
-
-
 
     def init_GL(self):
         # debug: print GL and GLS version
@@ -317,8 +301,6 @@ class RenderWindow:
         # Enable depthtest
         glEnable(GL_DEPTH_TEST)
         
-
-
     def on_mouse_button(self, win, button, action, mods):
         print("mouse button: ", win, button, action, mods)
         # TODO: realize arcball metaphor for rotations as well as
@@ -346,8 +328,6 @@ class RenderWindow:
                 self.scene.last_pan_y = y
             elif action == glfw.RELEASE:
                 self.scene.pan_pressed = False
-
-
 
     def on_keyboard(self, win, key, scancode, action, mods):
         print("keyboard: ", win, key, scancode, action, mods)
@@ -378,11 +358,8 @@ class RenderWindow:
                 self.scene.rotation_matrix = rot @ self.scene.rotation_matrix
                 print("Rotated around Z axis")
 
-
-
     def on_size(self, win, width, height):
         self.scene.set_size(width, height)
-
 
     def run(self):
         while not glfw.window_should_close(self.window) and not self.exitNow:
@@ -391,7 +368,7 @@ class RenderWindow:
 
             # setup viewport
             width, height = glfw.get_framebuffer_size(self.window)
-            glViewport(0, 0, width, height);
+            glViewport(0, 0, width, height)
 
             # call the rendering function
             self.scene.draw()
@@ -401,8 +378,6 @@ class RenderWindow:
 
         # end
         glfw.terminate()
-
-
 
 # main function
 if __name__ == '__main__':
