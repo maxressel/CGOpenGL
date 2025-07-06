@@ -32,7 +32,7 @@ def lade_obj(filename):
     vertices = np.array(vertices, dtype=np.float32)
     indices = np.array(indices, dtype=np.uint32)
 
-    if not normals:
+    if (not normals) or (filename.endswith("bunny.obj")) or (filename.endswith("elephant.obj")):
         normals = compute_normals(vertices, faces)
     else:
         normals = np.array(normals, dtype=np.float32)
